@@ -8,9 +8,9 @@ import (
 
 const screenWidth = 600
 const screenHeight = 480
-const cardWidth = 20
-const cardHeight = 30
-const fps = 30
+const cardWidth = 40
+const cardHeight = 60
+const fps = 20
 
 func main() {
 	rl.InitWindow(screenWidth, screenHeight, "Window")
@@ -28,15 +28,35 @@ func main() {
 	}
 }
 
+type Card struct {
+	face  string
+	x     int32
+	y     int32
+	color col.RGBA
+}
+
 func makeRender() func() {
-	var cardX, cardY, mouseX, mouseY int32
-	var isDragging = false
-	var cardColor = col.RGBA{
-		R: 0xFF,
-		G: 0xFF,
-		B: 0xFF,
-		A: 0xFF,
+	var cards = []*Card{
+		{
+			face : "A♠",
+			color: col.RGBA{
+				R: 0xFF,
+				G: 0xFF,
+				B: 0xFF,
+				A: 0xFF,
+			},
+		},
+		{
+			color: col.RGBA{
+				R: 0xC0,
+				G: 0xC0,
+				B: 0xC0,
+				A: 0xFF,
+			},
+		},
 	}
+	var mouseX, mouseY int32
+	var draggingCard *Card
 
 	const halfCardWidth = cardWidth / 2
 	clampCardX := func(x int32) int32 {
@@ -50,25 +70,32 @@ func makeRender() func() {
 		return max(y, halfCardHeight) - halfCardHeight
 	}
 
-	isInCard := func(x int32, y int32) bool {
-		isXIn := x >= cardX && x < (cardX+cardWidth)
-		isYIn := y >= cardY && y < (cardY+cardHeight)
+	isInCard := func(x int32, y int32, card *Card) bool {
+		isXIn := x >= card.x && x < (card.x+cardWidth)
+		isYIn := y >= card.y && y < (card.y+cardHeight)
 		return isXIn && isYIn
 	}
 
 	return func() {
 		mouseX = rl.GetMouseX()
 		mouseY = rl.GetMouseY()
-		if rl.IsMouseButtonPressed(rl.MouseButtonLeft) && isInCard(mouseX, mouseY) {
-			isDragging = true
+		if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
+			for _, card := range cards {
+				if isInCard(mouseX, mouseY, card) {
+					draggingCard = card
+					break
+				}
+			}
 		}
 		if rl.IsMouseButtonReleased(rl.MouseButtonLeft) {
-			isDragging = false
+			draggingCard = nil
 		}
-		if isDragging && rl.IsMouseButtonDown(rl.MouseButtonLeft) {
-			cardX = clampCardX(mouseX)
-			cardY = clampCardY(mouseY)
+		if draggingCard != nil && rl.IsMouseButtonDown(rl.MouseButtonLeft) {
+			draggingCard.x = clampCardX(mouseX)
+			draggingCard.y = clampCardY(mouseY)
 		}
-		rl.DrawRectangle(cardX, cardY, cardWidth, cardHeight, cardColor)
+		for _, card := range cards {
+			rl.DrawRectangle(card.x, card.y, cardWidth, cardHeight, card.color)
+		}
 	}
 }
