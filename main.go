@@ -1,8 +1,6 @@
 package main
 
 import (
-	col "image/color"
-
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -28,32 +26,14 @@ func main() {
 	}
 }
 
-type Card struct {
-	face  string
-	x     int32
-	y     int32
-	color col.RGBA
-}
+//type Renderable interface {
+//	Render()
+//}
 
 func makeRender() func() {
-	var cards = []*Card{
-		{
-			face : "A♠",
-			color: col.RGBA{
-				R: 0xFF,
-				G: 0xFF,
-				B: 0xFF,
-				A: 0xFF,
-			},
-		},
-		{
-			color: col.RGBA{
-				R: 0xC0,
-				G: 0xC0,
-				B: 0xC0,
-				A: 0xFF,
-			},
-		},
+	var cards = []Card{
+		makeCard('A', spades),
+		makeCard('2', hearts),
 	}
 	var mouseX, mouseY int32
 	var draggingCard *Card
@@ -80,9 +60,9 @@ func makeRender() func() {
 		mouseX = rl.GetMouseX()
 		mouseY = rl.GetMouseY()
 		if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
-			for _, card := range cards {
-				if isInCard(mouseX, mouseY, card) {
-					draggingCard = card
+			for i, card := range cards {
+				if isInCard(mouseX, mouseY, &card) {
+					draggingCard = &cards[i]
 					break
 				}
 			}
@@ -95,7 +75,7 @@ func makeRender() func() {
 			draggingCard.y = clampCardY(mouseY)
 		}
 		for _, card := range cards {
-			rl.DrawRectangle(card.x, card.y, cardWidth, cardHeight, card.color)
+			card.Render()
 		}
 	}
 }
