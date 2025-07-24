@@ -7,20 +7,6 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-var blackText = col.RGBA{
-	A: 0xFF,
-}
-var redText = col.RGBA{
-	R: 0xFF,
-	A: 0xFF,
-}
-var cardBackground = col.RGBA{
-	R: 0xFF,
-	G: 0xFF,
-	B: 0xFF,
-	A: 0xFF,
-}
-
 type Suit int
 
 const (

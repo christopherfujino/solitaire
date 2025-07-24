@@ -4,12 +4,6 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-const screenWidth = 600
-const screenHeight = 480
-const cardWidth = 40
-const cardHeight = 60
-const fps = 20
-
 func main() {
 	rl.InitWindow(screenWidth, screenHeight, "Window")
 	rl.SetTargetFPS(fps)
