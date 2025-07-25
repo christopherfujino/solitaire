@@ -25,7 +25,8 @@ func main() {
 func makeRender() func() {
 	// Global state
 
-	var stackSlots = DealStacks(makeDeck())
+	var deck = makeDeck()
+	var stackSlots = DealStacks(deck)
 	for i, slot := range stackSlots {
 		var x = int32(i)*(cardWidth+cardStackOffset) + cardStackOffset
 		// Leave room for foundations
@@ -40,10 +41,17 @@ func makeRender() func() {
 		foundations = append(
 			foundations,
 			Foundation{
-				x: int32(cardStackOffset + (i+3)*(cardStackOffset+cardWidth)), // TODO plus foo
+				x: int32(cardStackOffset + (i+3)*(cardStackOffset+cardWidth)),
 				y: cardStackOffset,
 			},
 		)
+	}
+
+	var stock = Stock{
+		deck: deck,
+		faceUp: &Deck{},
+		x: cardStackOffset,
+		y: cardStackOffset,
 	}
 
 	var mouseX, mouseY int32
@@ -92,9 +100,17 @@ func makeRender() func() {
 		}
 		if other.Length() == 1 {
 			// Test if it can be placed on a foundation
-			for _, foundation := range foundations {
-				if foundation.CanStackOn(other.card) {
+			for i := range foundations {
+				// must be a pointer
+				foundation := &foundations[i]
+				if foundation.CanStackOn(other.card) && foundation.TestHit(x, y) {
+					// needs to be the real one
 					foundation.Concatenate(other)
+					previousSlotLast := previousSlot.GetLast()
+					if previousSlotLast != nil {
+						previousSlotLast.card.isFaceUp = true
+					}
+					return
 				}
 			}
 		}
@@ -133,6 +149,8 @@ func makeRender() func() {
 				draggingStack.y = clampCardY(mouseY)
 			}
 		}
+
+		stock.Render()
 
 		for _, slot := range stackSlots {
 			slot.Render()

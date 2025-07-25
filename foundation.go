@@ -33,3 +33,7 @@ func (f *Foundation) Concatenate(stack *Stack) {
 	}
 	f.stack.concatenate(stack)
 }
+
+func (f Foundation) TestHit(x, y int32) bool {
+	return IsInCard(x, y, f.x, f.y)
+}

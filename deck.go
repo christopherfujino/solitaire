@@ -38,3 +38,7 @@ func (d *Deck) Pop() *Card {
 	d.cards = d.cards[:len(d.cards)-1]
 	return last
 }
+
+func (d *Deck) Push(c *Card) {
+	d.cards = append(d.cards, c)
+}
