@@ -1,5 +1,9 @@
 package main
 
+import (
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
+
 type StackSlot struct {
 	stack *Stack
 	x     int32
@@ -20,7 +24,9 @@ func (s *StackSlot) TestHit(x, y int32) *Stack {
 }
 
 func (s StackSlot) Render() {
-	if s.stack != nil {
+	if s.stack == nil {
+		rl.DrawRectangleLines(s.x, s.y, cardWidth, cardHeight, cardOutline)
+	} else {
 		s.stack.Render(s.x, s.y)
 	}
 }
@@ -146,4 +152,32 @@ func (s *Stack) GetLast() *Stack {
 		return s
 	}
 	return s.child.GetLast()
+}
+
+// Can [other] be stacked on top of [c].
+func (s Stack) CanStackOn(other *Card) bool {
+	var lastStack = s.GetLast()
+	if lastStack == nil {
+		panic("Unreachable?")
+	} else {
+		var last = lastStack.card
+		var otherColor bool
+		if last.suit == hearts || last.suit == diamonds {
+			otherColor = other.suit == spades || other.suit == clubs
+		} else {
+			otherColor = other.suit == hearts || other.suit == diamonds
+		}
+		if !otherColor {
+			return false
+		}
+
+		return last.face-other.face == 1
+	}
+}
+
+func (s Stack) Length() int {
+	if s.child == nil {
+		return 1
+	}
+	return 1 + s.child.Length()
 }

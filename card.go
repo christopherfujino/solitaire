@@ -139,21 +139,6 @@ func makeCard(face Face, suit Suit, isFaceUp bool) Card {
 	}
 }
 
-// / Can [other] be stacked on top of [c].
-func (c Card) CanStackOn(other *Card) bool {
-	var otherColor bool
-	if c.suit == hearts || c.suit == diamonds {
-		otherColor = other.suit == spades || other.suit == clubs
-	} else {
-		otherColor = other.suit == hearts || other.suit == diamonds
-	}
-	if !otherColor {
-		return false
-	}
-
-	return c.face - other.face == 1
-}
-
 func (c Card) Render(x, y int32) {
 	if c.isFaceUp {
 		rl.DrawRectangle(x, y, cardWidth, cardHeight, cardBackground)
