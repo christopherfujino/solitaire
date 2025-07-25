@@ -54,7 +54,7 @@ func makeRender() func() {
 		for _, slot := range stackSlots {
 			// Drop on empty StackSlot
 			if slot.stack == nil {
-				if other.card.face == "K" && IsInCard(x, y, slot.x, slot.y) {
+				if other.card.face == faceK && IsInCard(x, y, slot.x, slot.y) {
 					slot.Concatenate(other)
 					slot.Restack()
 					previousSlotLast := previousSlot.GetLast()
@@ -67,7 +67,7 @@ func makeRender() func() {
 			} else {
 				slotLast := slot.GetLast()
 				slotLast = slotLast.TestHit(x, y)
-				if slotLast != nil && slotLast.card.CanStackOn(other.GetLast().card) {
+				if slotLast != nil && slotLast.card.CanStackOn(other.card) {
 					slotLast.concatenate(other)
 					slot.Restack()
 					previousSlotLast := previousSlot.GetLast()

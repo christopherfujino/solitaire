@@ -41,20 +41,70 @@ var suits = []Suit{
 	clubs,
 }
 
-var faces = []string{
-	"A",
-	"2",
-	"3",
-	"4",
-	"5",
-	"6",
-	"7",
-	"8",
-	"9",
-	"10",
-	"J",
-	"Q",
-	"K",
+type Face int
+
+func (f Face) ToString() string {
+	switch f {
+	case faceA:
+		return "A"
+	case face2:
+		return "2"
+	case face3:
+		return "3"
+	case face4:
+		return "4"
+	case face5:
+		return "5"
+	case face6:
+		return "6"
+	case face7:
+		return "7"
+	case face8:
+		return "8"
+	case face9:
+		return "9"
+	case face10:
+		return "10"
+	case faceJ:
+		return "J"
+	case faceQ:
+		return "Q"
+	case faceK:
+		return "K"
+	}
+	panic("Unreachable")
+}
+
+const (
+	faceA Face = iota
+	face2
+	face3
+	face4
+	face5
+	face6
+	face7
+	face8
+	face9
+	face10
+	faceJ
+	faceQ
+	faceK
+)
+
+var faces = []Face{
+	faceA,
+	face2,
+	face3,
+	face4,
+	face5,
+	face6,
+	face7,
+	face8,
+	face9,
+	face10,
+	faceJ,
+	faceQ,
+	faceK,
 }
 
 func (s Suit) toColor() col.RGBA {
@@ -72,18 +122,18 @@ func (s Suit) toColor() col.RGBA {
 }
 
 type Card struct {
-	face      string
+	face      Face
 	suit      Suit
 	text      string
 	textColor col.RGBA
 	isFaceUp  bool
 }
 
-func makeCard(face string, suit Suit, isFaceUp bool) Card {
+func makeCard(face Face, suit Suit, isFaceUp bool) Card {
 	return Card{
 		face:      face,
 		suit:      suit,
-		text:      fmt.Sprintf("%s%c", face, suit.toRune()),
+		text:      fmt.Sprintf("%s%c", face.ToString(), suit.toRune()),
 		textColor: suit.toColor(),
 		isFaceUp:  isFaceUp,
 	}
@@ -101,8 +151,7 @@ func (c Card) CanStackOn(other *Card) bool {
 		return false
 	}
 
-	// TODO check card face is one less
-	return true
+	return c.face - other.face == 1
 }
 
 func (c Card) Render(x, y int32) {
