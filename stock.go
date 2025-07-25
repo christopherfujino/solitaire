@@ -17,7 +17,9 @@ func (s *Stock) Draw(n int) {
 		s.deck = s.faceUp
 		s.faceUp = &Deck{}
 	}
-	s.faceUp.Push(s.deck.Pop())
+	var current = s.deck.Pop()
+	current.isFaceUp = true
+	s.faceUp.Push(current)
 	s.Draw(n - 1)
 }
 
@@ -34,4 +36,24 @@ func (s Stock) Render() {
 			s.y,
 		)
 	}
+}
+
+type StockHitResult int
+
+const (
+	StockHitMiss StockHitResult = iota
+	StockHitDeck
+	StockHitFaceUp
+)
+
+func (s Stock) TestHit(x, y int32) StockHitResult {
+	if IsInCard(x, y, s.x, s.y) {
+		return StockHitDeck
+	}
+
+	if IsInCard(x, y, s.x + cardStackOffset + cardWidth, s.y) {
+		return StockHitFaceUp
+	}
+
+	return StockHitMiss
 }

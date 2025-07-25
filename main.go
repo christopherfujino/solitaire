@@ -48,10 +48,10 @@ func makeRender() func() {
 	}
 
 	var stock = Stock{
-		deck: deck,
+		deck:   deck,
 		faceUp: &Deck{},
-		x: cardStackOffset,
-		y: cardStackOffset,
+		x:      cardStackOffset,
+		y:      cardStackOffset,
 	}
 
 	var mouseX, mouseY int32
@@ -118,26 +118,37 @@ func makeRender() func() {
 		previousSlot.Restack()
 	}
 
+	handleClick := func(mouseX, mouseY int32) {
+		for _, slot := range stackSlots {
+			target := slot.TestHit(mouseX, mouseY)
+			// you cannot drag a face down card
+			if target != nil {
+				if !target.card.isFaceUp {
+					// put it back
+					slot.Concatenate(target)
+				} else {
+					// in case we need to snap back here
+					previousSlot = slot
+					draggingStack = target
+				}
+				return
+			}
+		}
+
+		switch stock.TestHit(mouseX, mouseY) {
+		case StockHitDeck:
+			stock.Draw(stockDrawCount)
+		case StockHitFaceUp:
+			// TODO what to do about previousSlot?!?!
+			draggingStack = &Stack{card: stock.faceUp.Pop()}
+		}
+	}
+
 	return func() {
 		mouseX = rl.GetMouseX()
 		mouseY = rl.GetMouseY()
 		if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
-			// Start drag
-			for _, slot := range stackSlots {
-				target := slot.TestHit(mouseX, mouseY)
-				// you cannot drag a face down card
-				if target != nil {
-					if !target.card.isFaceUp {
-						// put it back
-						slot.Concatenate(target)
-					} else {
-						// in case we need to snap back here
-						previousSlot = slot
-						draggingStack = target
-					}
-					break
-				}
-			}
+			handleClick(mouseX, mouseY)
 		}
 		if draggingStack != nil {
 			if rl.IsMouseButtonReleased(rl.MouseButtonLeft) {
