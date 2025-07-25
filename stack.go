@@ -35,7 +35,7 @@ func (s *StackSlot) Concatenate(other *Stack) {
 	if s.stack == nil {
 		s.stack = other
 	} else {
-		s.stack.concatenate(other)
+		s.stack.Concatenate(other)
 	}
 }
 
@@ -47,7 +47,11 @@ func (s *StackSlot) Restack() {
 	s.stack.Restack(s.x, s.y)
 }
 
-func (s *StackSlot) GetLast() *Stack {
+func (s StackSlot) Head() *Stack {
+	return s.stack
+}
+
+func (s *StackSlot) Tail() *Stack {
 	if s.stack == nil {
 		return nil
 	}
@@ -135,7 +139,7 @@ func (s *Stack) TestHit(x, y int32) *Stack {
 	return nil
 }
 
-func (s *Stack) concatenate(other *Stack) {
+func (s *Stack) Concatenate(other *Stack) {
 	if s == other {
 		panic("Unreachable")
 		//return
@@ -144,7 +148,7 @@ func (s *Stack) concatenate(other *Stack) {
 		s.child = other
 		return
 	}
-	s.child.concatenate(other)
+	s.child.Concatenate(other)
 }
 
 func (s *Stack) GetLast() *Stack {

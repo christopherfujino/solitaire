@@ -31,7 +31,7 @@ func (f *Foundation) Concatenate(stack *Stack) {
 		f.stack = stack
 		return
 	}
-	f.stack.concatenate(stack)
+	f.stack.Concatenate(stack)
 }
 
 func (f Foundation) TestHit(x, y int32) bool {

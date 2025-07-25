@@ -9,6 +9,30 @@ type Stock struct {
 	y      int32
 }
 
+func (s Stock) Restack() {
+	// no-op
+}
+
+func (s Stock) Tail() *Stack {
+	var faceUpLen = len(s.faceUp.cards)
+	if faceUpLen == 0 {
+		return nil
+	}
+	return &Stack{
+		// TODO do we need to set x and y?
+		card: s.faceUp.cards[faceUpLen - 1],
+	}
+}
+
+// Only reachable from a snapBack
+func (s Stock) Concatenate(other *Stack) {
+	if other.child != nil {
+		// we should only be snapping single cards to the Stock
+		panic("Unreachable")
+	}
+	s.faceUp.cards = append(s.faceUp.cards, other.card)
+}
+
 func (s *Stock) Draw(n int) {
 	if n == 0 {
 		return
@@ -25,7 +49,7 @@ func (s *Stock) Draw(n int) {
 
 func (s Stock) Render() {
 	if len(s.deck.cards) == 0 {
-		rl.DrawRectangle(s.x, s.y, cardWidth, cardHeight, cardOutline)
+		rl.DrawRectangleLines(s.x, s.y, cardWidth, cardHeight, cardOutline)
 	} else {
 		rl.DrawRectangle(s.x, s.y, cardWidth, cardHeight, cardBacking)
 	}

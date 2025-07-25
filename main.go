@@ -6,6 +6,13 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+// The union of a StackList & a Stock
+type Snappable interface {
+	Restack()
+	Tail() *Stack
+	Concatenate(*Stack)
+}
+
 func main() {
 	rl.InitWindow(screenWidth, screenHeight, "Window")
 	rl.SetTargetFPS(fps)
@@ -56,7 +63,7 @@ func makeRender() func() {
 
 	var mouseX, mouseY int32
 	var draggingStack *Stack
-	var previousSlot *StackSlot
+	var previousSlot Snappable
 
 	const halfCardWidth = cardWidth / 2
 	clampCardX := func(x int32) int32 {
@@ -77,7 +84,7 @@ func makeRender() func() {
 				if other.card.face == faceK && IsInCard(x, y, slot.x, slot.y) {
 					slot.Concatenate(other)
 					slot.Restack()
-					previousSlotLast := previousSlot.GetLast()
+					previousSlotLast := previousSlot.Tail()
 					if previousSlotLast != nil {
 						previousSlotLast.card.isFaceUp = true
 					}
@@ -85,12 +92,12 @@ func makeRender() func() {
 				}
 				// Drop on an existing stack
 			} else {
-				slotLast := slot.GetLast()
+				slotLast := slot.Tail()
 				slotLast = slotLast.TestHit(x, y)
 				if slotLast != nil && slotLast.CanStackOn(other.card) {
-					slotLast.concatenate(other)
+					slotLast.Concatenate(other)
 					slot.Restack()
-					previousSlotLast := previousSlot.GetLast()
+					previousSlotLast := previousSlot.Tail()
 					if previousSlotLast != nil {
 						previousSlotLast.card.isFaceUp = true
 					}
@@ -106,7 +113,7 @@ func makeRender() func() {
 				if foundation.CanStackOn(other.card) && foundation.TestHit(x, y) {
 					// needs to be the real one
 					foundation.Concatenate(other)
-					previousSlotLast := previousSlot.GetLast()
+					previousSlotLast := previousSlot.Tail()
 					if previousSlotLast != nil {
 						previousSlotLast.card.isFaceUp = true
 					}
@@ -140,6 +147,7 @@ func makeRender() func() {
 			stock.Draw(stockDrawCount)
 		case StockHitFaceUp:
 			// TODO what to do about previousSlot?!?!
+			previousSlot = stock
 			draggingStack = &Stack{card: stock.faceUp.Pop()}
 		}
 	}
