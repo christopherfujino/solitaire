@@ -10,6 +10,7 @@ const screenWidth = 600
 const screenHeight = 480
 const cardWidth = 40
 const cardHeight = 60
+const cardStackOffset = 10
 const fps = 20
 
 var blackText = col.RGBA{
@@ -23,5 +24,14 @@ var cardBackground = col.RGBA{
 	R: 0xFF,
 	G: 0xFF,
 	B: 0xFF,
+	A: 0xFF,
+}
+
+var cardBacking = col.RGBA{
+	B: 0x80,
+	A: 0xFF,
+}
+
+var cardOutline = col.RGBA{
 	A: 0xFF,
 }
