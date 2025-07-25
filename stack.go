@@ -1,20 +1,87 @@
 package main
 
 type Stack struct {
-	cards []Card
+	child *Stack
+	card  *Card
 	x     int32
 	y     int32
 }
 
-func (s Stack) Restack() {
-	for i := 0; i < len(s.cards); i++ {
-		s.cards[i].x = s.x
-		s.cards[i].y = s.y + int32(i) * cardStackOffset
+func DealStacks(deck *Deck) []*Stack {
+	// TODO
+	return []*Stack{
+		CreateStack(
+			[]Card{
+				makeCard("A", spades, false),
+			},
+		),
+		CreateStack(
+			[]Card{
+				makeCard("K", hearts, false),
+				makeCard("2", hearts, true),
+			},
+		),
+	}
+
+}
+
+func CreateStack(cards []Card) *Stack {
+	var first = &Stack{}
+	var current = first
+	var cardsLen = len(cards)
+	for i, card := range cards {
+		current.card = &card
+		if i < (cardsLen - 1) {
+			current.child = &Stack{}
+			current = current.child
+		}
+	}
+	return first
+}
+
+func (s *Stack) Restack(x, y int32) {
+	s.x = x
+	s.y = y
+	if s.child != nil {
+		s.child.Restack(x, y+cardStackOffset)
 	}
 }
 
-func (s Stack) Render() {
-	for _, card := range(s.cards) {
-		card.Render()
+func (s Stack) Render(x, y int32) {
+	s.card.Render(x, y)
+	if s.child != nil {
+		s.child.Render(x, y+cardStackOffset)
 	}
+}
+
+func (s *Stack) TestHit(x, y int32) *Stack {
+	// Test from bottom first
+	if s.child != nil {
+		found := s.child.TestHit(x, y)
+		if found != nil {
+			// if we found the child, remove it
+			if found == s.child {
+				s.child = nil
+			}
+			return found
+		}
+	}
+
+	isXIn := x >= s.x && x < (s.x+cardWidth)
+	isYIn := y >= s.y && y < (s.y+cardHeight)
+	if isXIn && isYIn {
+		return s
+	}
+	return nil
+}
+
+func (s *Stack) concatenate(other *Stack) {
+	if s == other {
+		return
+	}
+	if s.child == nil {
+		s.child = other
+		return
+	}
+	s.child.concatenate(other)
 }

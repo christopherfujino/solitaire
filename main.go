@@ -1,8 +1,9 @@
 package main
 
 import (
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"image/color"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 func main() {
@@ -21,65 +22,77 @@ func main() {
 	}
 }
 
-//type Renderable interface {
-//	Render()
-//}
-
 func makeRender() func() {
-	var stacks = []Stack{
-		Stack{
-			cards: []Card{
-				makeCard('A', spades, true),
-				makeCard('2', hearts, true),
-			},
-		},
+	// Global state
+
+	var stacks = DealStacks(makeDeck())
+	for i, stack := range stacks {
+		stack.Restack(int32(5+i)*(cardWidth+cardStackOffset), 5)
 	}
 
-	for _, stack := range stacks {
-		stack.Restack()
+	var mouseX, mouseY int32
+	var draggingStack *Stack
+	var previousStack *Stack
+
+	const halfCardWidth = cardWidth / 2
+	clampCardX := func(x int32) int32 {
+		x = min(x, screenWidth-halfCardWidth-1)
+		return max(x, halfCardWidth) - halfCardWidth
 	}
 
-	//var mouseX, mouseY int32
-	//var draggingCard *Card
+	const halfCardHeight = cardHeight / 2
+	clampCardY := func(y int32) int32 {
+		y = min(y, screenHeight-halfCardHeight-1)
+		return max(y, halfCardHeight) - halfCardHeight
+	}
 
-	//const halfCardWidth = cardWidth / 2
-	//clampCardX := func(x int32) int32 {
-	//	x = min(x, screenWidth-halfCardWidth-1)
-	//	return max(x, halfCardWidth) - halfCardWidth
-	//}
-
-	//const halfCardHeight = cardHeight / 2
-	//clampCardY := func(y int32) int32 {
-	//	y = min(y, screenHeight-halfCardHeight-1)
-	//	return max(y, halfCardHeight) - halfCardHeight
-	//}
-
-	//isInCard := func(x int32, y int32, card *Card) bool {
-	//	isXIn := x >= card.x && x < (card.x+cardWidth)
-	//	isYIn := y >= card.y && y < (card.y+cardHeight)
-	//	return isXIn && isYIn
-	//}
+	snapBack := func(other *Stack, x, y int32) {
+		var option *Stack
+		for _, stack := range stacks {
+			// TODO Test
+			option = stack.TestHit(x, y)
+			if option != nil {
+				stack.concatenate(other)
+				stack.Restack(stack.x, stack.y)
+				return
+			}
+		}
+		previousStack.concatenate(other)
+		previousStack.Restack(previousStack.x, previousStack.y)
+	}
 
 	return func() {
-		//mouseX = rl.GetMouseX()
-		//mouseY = rl.GetMouseY()
-		//if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
-		//	for i, card := range stacks {
-		//		if isInCard(mouseX, mouseY, &card) {
-		//			draggingCard = &stacks[i]
-		//			break
-		//		}
-		//	}
-		//}
-		//if rl.IsMouseButtonReleased(rl.MouseButtonLeft) {
-		//	draggingCard = nil
-		//}
-		//if draggingCard != nil && rl.IsMouseButtonDown(rl.MouseButtonLeft) {
-		//	draggingCard.x = clampCardX(mouseX)
-		//	draggingCard.y = clampCardY(mouseY)
-		//}
+		mouseX = rl.GetMouseX()
+		mouseY = rl.GetMouseY()
+		if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
+			var target *Stack
+			for _, stack := range stacks {
+				target = stack.TestHit(mouseX, mouseY)
+				if target != nil {
+					// in case we need to snap back here
+					previousStack = stack
+					draggingStack = target
+					break
+				}
+			}
+		}
+		if rl.IsMouseButtonReleased(rl.MouseButtonLeft) {
+			if draggingStack != nil {
+				snapBack(draggingStack, mouseX, mouseY)
+				previousStack = nil
+				draggingStack = nil
+			}
+		}
+		if draggingStack != nil && rl.IsMouseButtonDown(rl.MouseButtonLeft) {
+			draggingStack.x = clampCardX(mouseX)
+			draggingStack.y = clampCardY(mouseY)
+		}
+
 		for _, stack := range stacks {
-			stack.Render()
+			stack.Render(stack.x, stack.y)
+		}
+		if draggingStack != nil {
+			draggingStack.Render(draggingStack.x, draggingStack.y)
 		}
 	}
 }

@@ -28,6 +28,8 @@ var cardBackground = col.RGBA{
 }
 
 var cardBacking = col.RGBA{
+	R: 0x20,
+	G: 0x20,
 	B: 0x80,
 	A: 0xFF,
 }

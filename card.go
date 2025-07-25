@@ -49,31 +49,30 @@ func (s Suit) toColor() col.RGBA {
 }
 
 type Card struct {
-	face      rune
+	face      string
 	suit      Suit
-	x         int32
-	y         int32
 	text      string
 	textColor col.RGBA
 	isFaceUp  bool
 }
 
-func makeCard(face rune, suit Suit, isFaceUp bool) Card {
+func makeCard(face string, suit Suit, isFaceUp bool) Card {
 	return Card{
 		face:      face,
 		suit:      suit,
-		text:      fmt.Sprintf("%c%c", face, suit.toRune()),
+		text:      fmt.Sprintf("%s%c", face, suit.toRune()),
 		textColor: suit.toColor(),
-		isFaceUp: isFaceUp,
+		isFaceUp:  isFaceUp,
 	}
 }
 
-func (c Card) Render() {
+func (c Card) Render(x, y int32) {
 	if c.isFaceUp {
-		rl.DrawRectangle(c.x, c.y, cardWidth, cardHeight, cardBackground)
-		rl.DrawRectangleLines(c.x, c.y, cardWidth, cardHeight, cardOutline)
-		rl.DrawText(c.text, c.x+1, c.y+1, 12, c.textColor)
+		rl.DrawRectangle(x, y, cardWidth, cardHeight, cardBackground)
+		rl.DrawRectangleLines(x, y, cardWidth, cardHeight, cardOutline)
+		rl.DrawText(c.text, x+1, y+1, 12, c.textColor)
 	} else {
-		rl.DrawRectangle(c.x, c.y, cardWidth, cardHeight, cardBacking)
+		rl.DrawRectangle(x, y, cardWidth, cardHeight, cardBacking)
+		rl.DrawRectangleLines(x, y, cardWidth, cardHeight, cardOutline)
 	}
 }
