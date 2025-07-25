@@ -34,6 +34,29 @@ func (s Suit) toRune() rune {
 	panic("unreachable")
 }
 
+var suits = []Suit{
+	hearts,
+	diamonds,
+	spades,
+	clubs,
+}
+
+var faces = []string{
+	"A",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"7",
+	"8",
+	"9",
+	"10",
+	"J",
+	"Q",
+	"K",
+}
+
 func (s Suit) toColor() col.RGBA {
 	switch s {
 	case hearts:
@@ -64,6 +87,22 @@ func makeCard(face string, suit Suit, isFaceUp bool) Card {
 		textColor: suit.toColor(),
 		isFaceUp:  isFaceUp,
 	}
+}
+
+// / Can [other] be stacked on top of [c].
+func (c Card) CanStackOn(other *Card) bool {
+	var otherColor bool
+	if c.suit == hearts || c.suit == diamonds {
+		otherColor = other.suit == spades || other.suit == clubs
+	} else {
+		otherColor = other.suit == hearts || other.suit == diamonds
+	}
+	if !otherColor {
+		return false
+	}
+
+	// TODO check card face is one less
+	return true
 }
 
 func (c Card) Render(x, y int32) {

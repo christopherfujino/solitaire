@@ -51,8 +51,8 @@ func makeRender() func() {
 	}
 
 	snapBack := func(other *Stack, x, y int32) {
-		var option *Stack
 		for _, slot := range stackSlots {
+			// Drop on empty StackSlot
 			if slot.stack == nil {
 				if other.card.face == "K" && IsInCard(x, y, slot.x, slot.y) {
 					slot.Concatenate(other)
@@ -63,11 +63,12 @@ func makeRender() func() {
 					}
 					return
 				}
+				// Drop on an existing stack
 			} else {
-				option = slot.GetLast()
-				option = option.TestHit(x, y)
-				if option != nil {
-					option.concatenate(other)
+				slotLast := slot.GetLast()
+				slotLast = slotLast.TestHit(x, y)
+				if slotLast != nil && slotLast.card.CanStackOn(other.GetLast().card) {
+					slotLast.concatenate(other)
 					slot.Restack()
 					previousSlotLast := previousSlot.GetLast()
 					if previousSlotLast != nil {

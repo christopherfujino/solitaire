@@ -9,29 +9,6 @@ type Deck struct {
 	cards []*Card
 }
 
-var suits = []Suit{
-	hearts,
-	diamonds,
-	spades,
-	clubs,
-}
-
-var faces = []string{
-	"A",
-	"2",
-	"3",
-	"4",
-	"5",
-	"6",
-	"7",
-	"8",
-	"9",
-	"10",
-	"J",
-	"Q",
-	"K",
-}
-
 func makeDeck() *Deck {
 	var deck Deck = Deck{
 		cards: make([]*Card, 52),

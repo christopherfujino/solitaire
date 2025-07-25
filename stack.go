@@ -45,14 +45,7 @@ func (s *StackSlot) GetLast() *Stack {
 	if s.stack == nil {
 		return nil
 	}
-	var innerRec func(*Stack) *Stack
-	innerRec = func(s *Stack) *Stack {
-		if s.child == nil {
-			return s
-		}
-		return innerRec(s.child)
-	}
-	return innerRec(s.stack)
+	return s.stack.GetLast()
 }
 
 type Stack struct {
@@ -146,4 +139,11 @@ func (s *Stack) concatenate(other *Stack) {
 		return
 	}
 	s.child.concatenate(other)
+}
+
+func (s *Stack) GetLast() *Stack {
+	if s.child == nil {
+		return s
+	}
+	return s.child.GetLast()
 }
