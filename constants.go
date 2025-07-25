@@ -8,10 +8,10 @@ import (
 
 const screenWidth = 600
 const screenHeight = 480
-const cardWidth = 40
-const cardHeight = 60
+const cardWidth = 60
+const cardHeight = 90
 const cardStackOffset = 10
-const fps = 20
+const fps = 30
 
 var blackText = col.RGBA{
 	A: 0xFF,

@@ -33,12 +33,12 @@ func (s *StackSlot) Concatenate(other *Stack) {
 	}
 }
 
-func (s *StackSlot) Restack(x, y int32) {
+func (s *StackSlot) Restack() {
 	if s.stack == nil {
 		return
 	}
 
-	s.stack.Restack(x, y)
+	s.stack.Restack(s.x, s.y)
 }
 
 func (s *StackSlot) GetLast() *Stack {

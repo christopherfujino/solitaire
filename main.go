@@ -27,8 +27,8 @@ func makeRender() func() {
 
 	var stackSlots = DealStacks(makeDeck())
 	for i, slot := range stackSlots {
-		var x = int32(i)*(cardWidth+cardStackOffset) + 5
-		var y int32 = 5
+		var x = int32(i)*(cardWidth+cardStackOffset) + cardStackOffset
+		var y int32 = cardStackOffset
 		slot.x = x
 		slot.y = y
 		slot.stack.Restack(x, y)
@@ -56,7 +56,7 @@ func makeRender() func() {
 			if slot.stack == nil {
 				if IsInCard(x, y, slot.x, slot.y) {
 					slot.Concatenate(other)
-					slot.Restack(slot.x, slot.y)
+					slot.Restack()
 					return
 				}
 			} else {
@@ -64,13 +64,13 @@ func makeRender() func() {
 				option = option.TestHit(x, y)
 				if option != nil {
 					option.concatenate(other)
-					slot.Restack(slot.x, slot.y)
+					slot.Restack()
 					return
 				}
 			}
 		}
 		previousSlot.Concatenate(other)
-		previousSlot.Restack(previousSlot.x, previousSlot.y)
+		previousSlot.Restack()
 	}
 
 	return func() {
