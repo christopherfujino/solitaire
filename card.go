@@ -76,3 +76,12 @@ func (c Card) Render(x, y int32) {
 		rl.DrawRectangleLines(x, y, cardWidth, cardHeight, cardOutline)
 	}
 }
+
+func IsInCard(hitX, hitY, cardX, cardY int32) bool {
+	if hitX >= cardX && hitX < (cardX+cardWidth) {
+		if hitY >= cardY && hitY < (cardY+cardHeight) {
+			return true
+		}
+	}
+	return false
+}

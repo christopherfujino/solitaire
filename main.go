@@ -27,7 +27,11 @@ func makeRender() func() {
 
 	var stackSlots = DealStacks(makeDeck())
 	for i, slot := range stackSlots {
-		slot.stack.Restack(int32(5+i)*(cardWidth+cardStackOffset), 5)
+		var x = int32(i)*(cardWidth+cardStackOffset) + 5
+		var y int32 = 5
+		slot.x = x
+		slot.y = y
+		slot.stack.Restack(x, y)
 	}
 
 	var mouseX, mouseY int32
@@ -49,19 +53,24 @@ func makeRender() func() {
 	snapBack := func(other *Stack, x, y int32) {
 		var option *Stack
 		for _, slot := range stackSlots {
-			// TODO this should test the slot
-			option = slot.stack.TestHit(x, y)
-			if option != nil {
-				// TODO This should concat the slot
-				slot.stack.concatenate(other)
-				slot.stack.Restack(slot.x, slot.y)
-				return
+			if slot.stack == nil {
+				if IsInCard(x, y, slot.x, slot.y) {
+					slot.Concatenate(other)
+					slot.Restack(slot.x, slot.y)
+					return
+				}
+			} else {
+				option = slot.GetLast()
+				option = option.TestHit(x, y)
+				if option != nil {
+					option.concatenate(other)
+					slot.Restack(slot.x, slot.y)
+					return
+				}
 			}
 		}
-		// TODO slot
-		previousSlot.stack.concatenate(other)
-		// TODO slot
-		previousSlot.stack.Restack(previousSlot.x, previousSlot.y)
+		previousSlot.Concatenate(other)
+		previousSlot.Restack(previousSlot.x, previousSlot.y)
 	}
 
 	return func() {
@@ -70,8 +79,7 @@ func makeRender() func() {
 		if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
 			var target *Stack
 			for _, slot := range stackSlots {
-			// TODO this should test the slot
-				target = slot.stack.TestHit(mouseX, mouseY)
+				target = slot.TestHit(mouseX, mouseY)
 				if target != nil {
 					// in case we need to snap back here
 					previousSlot = slot
@@ -94,7 +102,7 @@ func makeRender() func() {
 
 		for _, slot := range stackSlots {
 			// TODO slot
-			slot.stack.Render(slot.stack.x, slot.stack.y)
+			slot.Render(slot.x, slot.y)
 		}
 		if draggingStack != nil {
 			draggingStack.Render(draggingStack.x, draggingStack.y)

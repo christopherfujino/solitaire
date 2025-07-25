@@ -6,6 +6,55 @@ type StackSlot struct {
 	y     int32
 }
 
+func (s *StackSlot) TestHit(x, y int32) *Stack {
+	if s.stack == nil {
+		// TODO need to handle case where its empty but matches hit for dropping
+		return nil
+	}
+	var target = s.stack.TestHit(x, y)
+	if target == s.stack {
+		// Clear the slot
+		s.stack = nil
+	}
+	return target
+}
+
+func (s StackSlot) Render(x, y int32) {
+	if s.stack != nil {
+		s.stack.Render(x, y)
+	}
+}
+
+func (s *StackSlot) Concatenate(other *Stack) {
+	if s.stack == nil {
+		s.stack = other
+	} else {
+		s.stack.concatenate(other)
+	}
+}
+
+func (s *StackSlot) Restack(x, y int32) {
+	if s.stack == nil {
+		return
+	}
+
+	s.stack.Restack(x, y)
+}
+
+func (s *StackSlot) GetLast() *Stack {
+	if s.stack == nil {
+		return nil
+	}
+	var innerRec func(*Stack) *Stack
+	innerRec = func(s *Stack) *Stack {
+		if s.child == nil {
+			return s
+		}
+		return innerRec(s.child)
+	}
+	return innerRec(s.stack)
+}
+
 type Stack struct {
 	child *Stack
 	card  *Card
@@ -81,9 +130,7 @@ func (s *Stack) TestHit(x, y int32) *Stack {
 		}
 	}
 
-	isXIn := x >= s.x && x < (s.x+cardWidth)
-	isYIn := y >= s.y && y < (s.y+cardHeight)
-	if isXIn && isYIn {
+	if IsInCard(x, y, s.x, s.y) {
 		return s
 	}
 	return nil
