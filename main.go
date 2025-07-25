@@ -25,14 +25,14 @@ func main() {
 func makeRender() func() {
 	// Global state
 
-	var stacks = DealStacks(makeDeck())
-	for i, stack := range stacks {
-		stack.Restack(int32(5+i)*(cardWidth+cardStackOffset), 5)
+	var stackSlots = DealStacks(makeDeck())
+	for i, slot := range stackSlots {
+		slot.stack.Restack(int32(5+i)*(cardWidth+cardStackOffset), 5)
 	}
 
 	var mouseX, mouseY int32
 	var draggingStack *Stack
-	var previousStack *Stack
+	var previousSlot *StackSlot
 
 	const halfCardWidth = cardWidth / 2
 	clampCardX := func(x int32) int32 {
@@ -48,17 +48,20 @@ func makeRender() func() {
 
 	snapBack := func(other *Stack, x, y int32) {
 		var option *Stack
-		for _, stack := range stacks {
-			// TODO Test
-			option = stack.TestHit(x, y)
+		for _, slot := range stackSlots {
+			// TODO this should test the slot
+			option = slot.stack.TestHit(x, y)
 			if option != nil {
-				stack.concatenate(other)
-				stack.Restack(stack.x, stack.y)
+				// TODO This should concat the slot
+				slot.stack.concatenate(other)
+				slot.stack.Restack(slot.x, slot.y)
 				return
 			}
 		}
-		previousStack.concatenate(other)
-		previousStack.Restack(previousStack.x, previousStack.y)
+		// TODO slot
+		previousSlot.stack.concatenate(other)
+		// TODO slot
+		previousSlot.stack.Restack(previousSlot.x, previousSlot.y)
 	}
 
 	return func() {
@@ -66,11 +69,12 @@ func makeRender() func() {
 		mouseY = rl.GetMouseY()
 		if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
 			var target *Stack
-			for _, stack := range stacks {
-				target = stack.TestHit(mouseX, mouseY)
+			for _, slot := range stackSlots {
+			// TODO this should test the slot
+				target = slot.stack.TestHit(mouseX, mouseY)
 				if target != nil {
 					// in case we need to snap back here
-					previousStack = stack
+					previousSlot = slot
 					draggingStack = target
 					break
 				}
@@ -79,7 +83,7 @@ func makeRender() func() {
 		if rl.IsMouseButtonReleased(rl.MouseButtonLeft) {
 			if draggingStack != nil {
 				snapBack(draggingStack, mouseX, mouseY)
-				previousStack = nil
+				previousSlot = nil
 				draggingStack = nil
 			}
 		}
@@ -88,8 +92,9 @@ func makeRender() func() {
 			draggingStack.y = clampCardY(mouseY)
 		}
 
-		for _, stack := range stacks {
-			stack.Render(stack.x, stack.y)
+		for _, slot := range stackSlots {
+			// TODO slot
+			slot.stack.Render(slot.stack.x, slot.stack.y)
 		}
 		if draggingStack != nil {
 			draggingStack.Render(draggingStack.x, draggingStack.y)

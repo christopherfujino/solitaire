@@ -4,7 +4,10 @@ import (
 	"math/rand"
 )
 
-type Deck []*Card
+// This is a struct so it can be mutated in place
+type Deck struct {
+	cards []*Card
+}
 
 var suits = []Suit{
 	hearts,
@@ -30,11 +33,13 @@ var faces = []string{
 }
 
 func makeDeck() *Deck {
-	var deck Deck = make([]*Card, 52)
+	var deck Deck = Deck{
+		cards: make([]*Card, 52),
+	}
 	for i, face := range faces {
 		for j, suit := range suits {
 			card := makeCard(face, suit, false)
-			deck[i+j*len(faces)] = &card
+			deck.cards[i+j*len(faces)] = &card
 		}
 	}
 
@@ -45,8 +50,14 @@ func makeDeck() *Deck {
 func (d *Deck) Shuffle() {
 	for i := 0; i < 52; i++ {
 		next := rand.Intn(52)
-		var temp = (*d)[next]
-		(*d)[next] = (*d)[i]
-		(*d)[i] = temp
+		var temp = d.cards[next]
+		d.cards[next] = d.cards[i]
+		d.cards[i] = temp
 	}
+}
+
+func (d *Deck) Pop() *Card {
+	var last = d.cards[len(d.cards)-1]
+	d.cards = d.cards[:len(d.cards)-1]
+	return last
 }

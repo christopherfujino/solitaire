@@ -1,5 +1,11 @@
 package main
 
+type StackSlot struct {
+	stack *Stack
+	x     int32
+	y     int32
+}
+
 type Stack struct {
 	child *Stack
 	card  *Card
@@ -7,22 +13,30 @@ type Stack struct {
 	y     int32
 }
 
-func DealStacks(deck *Deck) []*Stack {
-	// TODO
-	return []*Stack{
-		CreateStack(
-			[]Card{
-				makeCard("A", spades, false),
-			},
-		),
-		CreateStack(
-			[]Card{
-				makeCard("K", hearts, false),
-				makeCard("2", hearts, true),
-			},
-		),
+func DealStacks(deck *Deck) []*StackSlot {
+	var slots []*StackSlot
+
+	var buildStackOf func(int) *Stack
+	buildStackOf = func(n int) *Stack {
+		if n == 1 {
+			var card = deck.Pop()
+			card.isFaceUp = true
+			return &Stack{
+				card: card,
+			}
+		}
+		return &Stack{
+			card:  deck.Pop(),
+			child: buildStackOf(n - 1),
+		}
+	}
+	for i := 0; i < 7; i++ {
+		slots = append(slots, &StackSlot{
+			stack: buildStackOf(i + 1),
+		})
 	}
 
+	return slots
 }
 
 func CreateStack(cards []Card) *Stack {
@@ -77,7 +91,8 @@ func (s *Stack) TestHit(x, y int32) *Stack {
 
 func (s *Stack) concatenate(other *Stack) {
 	if s == other {
-		return
+		panic("Unreachable")
+		//return
 	}
 	if s.child == nil {
 		s.child = other
