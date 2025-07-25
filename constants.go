@@ -10,7 +10,7 @@ const screenWidth = 600
 const screenHeight = 480
 const cardWidth = 60
 const cardHeight = 90
-const cardStackOffset = 10
+const cardStackOffset = 15
 const fps = 30
 
 var blackText = col.RGBA{

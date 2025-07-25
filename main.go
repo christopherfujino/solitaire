@@ -54,9 +54,13 @@ func makeRender() func() {
 		var option *Stack
 		for _, slot := range stackSlots {
 			if slot.stack == nil {
-				if IsInCard(x, y, slot.x, slot.y) {
+				if other.card.face == "K" && IsInCard(x, y, slot.x, slot.y) {
 					slot.Concatenate(other)
 					slot.Restack()
+					previousSlotLast := previousSlot.GetLast()
+					if previousSlotLast != nil {
+						previousSlotLast.card.isFaceUp = true
+					}
 					return
 				}
 			} else {
@@ -65,6 +69,10 @@ func makeRender() func() {
 				if option != nil {
 					option.concatenate(other)
 					slot.Restack()
+					previousSlotLast := previousSlot.GetLast()
+					if previousSlotLast != nil {
+						previousSlotLast.card.isFaceUp = true
+					}
 					return
 				}
 			}
@@ -77,33 +85,38 @@ func makeRender() func() {
 		mouseX = rl.GetMouseX()
 		mouseY = rl.GetMouseY()
 		if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
-			var target *Stack
+			// Start drag
 			for _, slot := range stackSlots {
-				target = slot.TestHit(mouseX, mouseY)
+				target := slot.TestHit(mouseX, mouseY)
+				// you cannot drag a face down card
 				if target != nil {
-					// in case we need to snap back here
-					previousSlot = slot
-					draggingStack = target
+					if !target.card.isFaceUp {
+						// put it back
+						slot.Concatenate(target)
+					} else {
+						// in case we need to snap back here
+						previousSlot = slot
+						draggingStack = target
+					}
 					break
 				}
 			}
 		}
-		if rl.IsMouseButtonReleased(rl.MouseButtonLeft) {
-			if draggingStack != nil {
+		if draggingStack != nil {
+			if rl.IsMouseButtonReleased(rl.MouseButtonLeft) {
 				snapBack(draggingStack, mouseX, mouseY)
 				previousSlot = nil
 				draggingStack = nil
+			} else if rl.IsMouseButtonDown(rl.MouseButtonLeft) {
+				draggingStack.x = clampCardX(mouseX)
+				draggingStack.y = clampCardY(mouseY)
 			}
-		}
-		if draggingStack != nil && rl.IsMouseButtonDown(rl.MouseButtonLeft) {
-			draggingStack.x = clampCardX(mouseX)
-			draggingStack.y = clampCardY(mouseY)
 		}
 
 		for _, slot := range stackSlots {
-			// TODO slot
-			slot.Render(slot.x, slot.y)
+			slot.Render()
 		}
+		// This must be rendered after the slots
 		if draggingStack != nil {
 			draggingStack.Render(draggingStack.x, draggingStack.y)
 		}

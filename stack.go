@@ -19,9 +19,9 @@ func (s *StackSlot) TestHit(x, y int32) *Stack {
 	return target
 }
 
-func (s StackSlot) Render(x, y int32) {
+func (s StackSlot) Render() {
 	if s.stack != nil {
-		s.stack.Render(x, y)
+		s.stack.Render(s.x, s.y)
 	}
 }
 
