@@ -146,7 +146,6 @@ func makeRender() func() {
 		case StockHitDeck:
 			stock.Draw(stockDrawCount)
 		case StockHitFaceUp:
-			// TODO what to do about previousSlot?!?!
 			previousSlot = stock
 			draggingStack = &Stack{card: stock.faceUp.Pop()}
 		}

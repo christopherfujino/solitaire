@@ -1,6 +1,9 @@
 package main
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	rl "github.com/gen2brain/raylib-go/raylib"
+	"slices"
+)
 
 type Stock struct {
 	deck   *Deck
@@ -19,8 +22,7 @@ func (s Stock) Tail() *Stack {
 		return nil
 	}
 	return &Stack{
-		// TODO do we need to set x and y?
-		card: s.faceUp.cards[faceUpLen - 1],
+		card: s.faceUp.cards[faceUpLen-1],
 	}
 }
 
@@ -37,15 +39,16 @@ func (s *Stock) Draw(n int) {
 	if n == 0 {
 		return
 	}
-	// TODO off by one?
 	if len(s.deck.cards) == 0 {
 		s.deck = s.faceUp
+		slices.Reverse(s.deck.cards)
 		s.faceUp = &Deck{}
+	} else {
+		var current = s.deck.Pop()
+		current.isFaceUp = true
+		s.faceUp.Push(current)
+		s.Draw(n - 1)
 	}
-	var current = s.deck.Pop()
-	current.isFaceUp = true
-	s.faceUp.Push(current)
-	s.Draw(n - 1)
 }
 
 func (s Stock) Render() {
@@ -56,8 +59,8 @@ func (s Stock) Render() {
 	}
 
 	if len(s.faceUp.cards) > 0 {
-		s.faceUp.cards[len(s.faceUp.cards) - 1].Render(
-			s.x + cardStackOffset + cardWidth,
+		s.faceUp.cards[len(s.faceUp.cards)-1].Render(
+			s.x+cardStackOffset+cardWidth,
 			s.y,
 		)
 	}
@@ -76,7 +79,7 @@ func (s Stock) TestHit(x, y int32) StockHitResult {
 		return StockHitDeck
 	}
 
-	if IsInCard(x, y, s.x + cardStackOffset + cardWidth, s.y) {
+	if IsInCard(x, y, s.x+cardStackOffset+cardWidth, s.y) {
 		return StockHitFaceUp
 	}
 

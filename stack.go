@@ -12,7 +12,6 @@ type StackSlot struct {
 
 func (s *StackSlot) TestHit(x, y int32) *Stack {
 	if s.stack == nil {
-		// TODO need to handle case where its empty but matches hit for dropping
 		return nil
 	}
 	var target = s.stack.TestHit(x, y)
