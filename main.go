@@ -79,7 +79,7 @@ func makeRender() func() {
 		for _, slot := range stackSlots {
 			// Drop on empty StackSlot
 			if slot.stack == nil {
-				if other.card.face == faceK && IsInCard(x, y, slot.x, slot.y) {
+				if other.card.face == faceK && IntersectsCard(other.x, other.y, slot.x, slot.y) {
 					slot.Concatenate(other)
 					slot.Restack()
 					previousSlotLast := previousSlot.Tail()
@@ -91,8 +91,7 @@ func makeRender() func() {
 				// Drop on an existing stack
 			} else {
 				slotLast := slot.Tail()
-				slotLast = slotLast.TestHit(x, y)
-				if slotLast != nil && slotLast.CanStackOn(other.card) {
+				if IntersectsCard(other.x, other.y, slotLast.x, slotLast.y) && slotLast.CanStackOn(other.card) {
 					slotLast.Concatenate(other)
 					slot.Restack()
 					previousSlotLast := previousSlot.Tail()
@@ -108,7 +107,7 @@ func makeRender() func() {
 			for i := range foundations {
 				// must be a pointer
 				foundation := &foundations[i]
-				if foundation.CanStackOn(other.card) && foundation.TestHit(x, y) {
+				if foundation.CanStackOn(other.card) && IntersectsCard(foundation.x, foundation.y, other.x, other.y) {
 					// needs to be the real one
 					foundation.Concatenate(other)
 					previousSlotLast := previousSlot.Tail()

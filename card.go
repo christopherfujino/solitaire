@@ -172,3 +172,37 @@ func IsInCard(hitX, hitY, cardX, cardY int32) bool {
 	}
 	return false
 }
+
+// first = dragged card; second = empty slot
+func IntersectsCard(firstLeft, firstTop, secondLeft, secondTop int32) bool {
+	var firstRight = firstLeft + cardWidth
+	var firstBottom = firstTop + cardHeight
+	var secondRight = secondLeft + cardWidth
+	var secondBottom = secondTop + cardHeight
+	if secondLeft > firstLeft {
+		// first -> second
+		if firstRight < secondLeft {
+			return false
+		}
+	} else {
+		// second -> first
+		if secondRight < firstLeft {
+			return false
+		}
+	}
+
+	if secondTop > firstTop {
+		// second -> first (upper)
+		if firstBottom < secondTop {
+			return false
+		}
+	} else {
+		// first -> second (upper)
+		if secondBottom < firstTop {
+			return false
+		}
+	}
+
+	fmt.Println("J")
+	return true
+}
