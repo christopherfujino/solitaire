@@ -43,15 +43,13 @@ func makeRender() func() {
 		slot.stack.Restack(x, y)
 	}
 
-	var foundations []Foundation
+	var foundations = make([]Foundation, 4)
 	for i := range 4 {
-		foundations = append(
-			foundations,
-			Foundation{
-				x: int32(cardStackOffset + (i+3)*(cardStackOffset+cardWidth)),
-				y: cardStackOffset,
-			},
-		)
+		foundations[i] = Foundation{
+			// 3 is the size of stock
+			x: int32(cardStackOffset + (i+3)*(cardStackOffset+cardWidth)),
+			y: cardStackOffset,
+		}
 	}
 
 	var stock = Stock{
