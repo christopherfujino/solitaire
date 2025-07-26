@@ -140,6 +140,7 @@ func makeCard(face Face, suit Suit, isFaceUp bool) Card {
 }
 
 var _font *rl.Font
+
 func getFont() *rl.Font {
 	if _font == nil {
 		//var font = rl.LoadFont("./ignore/font/ttf-symbola-8.00/Symbola.ttf")

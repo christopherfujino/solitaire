@@ -44,7 +44,7 @@ func makeRender() func() {
 	}
 
 	var foundations []Foundation
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		foundations = append(
 			foundations,
 			Foundation{
