@@ -37,6 +37,7 @@ func (s *Stock) Draw(n int) {
 	if n == 0 {
 		return
 	}
+	// TODO off by one?
 	if len(s.deck.cards) == 0 {
 		s.deck = s.faceUp
 		s.faceUp = &Deck{}

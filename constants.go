@@ -6,13 +6,14 @@ import (
 	col "image/color"
 )
 
-const screenWidth = 600
-const screenHeight = 480
-const cardWidth = 60
-const cardHeight = 90
-const cardStackOffset = 15
+const screenWidth = 800
+const screenHeight = 600
+const cardWidth = 90
+const cardHeight = 120
+const cardStackOffset = 20
 const fps = 30
 const stockDrawCount = 1
+const fontSize = 18
 
 var blackText = col.RGBA{
 	A: 0xFF,

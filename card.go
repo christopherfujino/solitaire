@@ -139,11 +139,24 @@ func makeCard(face Face, suit Suit, isFaceUp bool) Card {
 	}
 }
 
+var _font *rl.Font
+func getFont() *rl.Font {
+	if _font == nil {
+		//var font = rl.LoadFont("./ignore/font/ttf-symbola-8.00/Symbola.ttf")
+		var font = rl.LoadFont("./ignore/roboto/Roboto-Regular.ttf")
+		_font = &font
+	}
+	return _font
+}
+
 func (c Card) Render(x, y int32) {
 	if c.isFaceUp {
 		rl.DrawRectangle(x, y, cardWidth, cardHeight, cardBackground)
 		rl.DrawRectangleLines(x, y, cardWidth, cardHeight, cardOutline)
-		rl.DrawText(c.text, x+1, y+1, 12, c.textColor)
+		//rl.DrawText(c.text, x+1, y+1, fontSize, c.textColor)
+		const spacing = 0 // ?
+		rl.DrawTextEx(*getFont(), c.text, rl.Vector2{X: float32(x + 1), Y: float32(y + 1)}, fontSize, spacing, c.textColor)
+		//rl.DrawTextEx(*getFont(), "\xF0\x9F\x8c\x80", rl.Vector2{X: float32(x + 1), Y: float32(y + 1)}, fontSize, spacing, c.textColor)
 	} else {
 		rl.DrawRectangle(x, y, cardWidth, cardHeight, cardBacking)
 		rl.DrawRectangleLines(x, y, cardWidth, cardHeight, cardOutline)
