@@ -13,23 +13,35 @@ type Snappable interface {
 	Concatenate(*Stack)
 }
 
+var menu Menu
+
+var Font rl.Font
+
 func main() {
 	rl.InitWindow(screenWidth, screenHeight, "Window")
+	Font = rl.LoadFont("./ignore/roboto/Roboto-Regular.ttf")
 	rl.SetTargetFPS(fps)
 
 	render := makeRender()
+
+	var shouldReset = false
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 		rl.ClearBackground(color.RGBA{G: 0x80, A: 0xFF})
 
-		render()
+		shouldReset = render()
 
+		rl.DrawFPS(5, 30)
 		rl.EndDrawing()
+
+		if shouldReset {
+			render = makeRender()
+		}
 	}
 }
 
-func makeRender() func() {
+func makeRender() func() bool {
 	// Global state
 
 	var deck = makeDeck()
@@ -37,7 +49,7 @@ func makeRender() func() {
 	for i, slot := range stackSlots {
 		var x = int32(i)*(cardWidth+cardStackOffset) + cardStackOffset
 		// Leave room for foundations
-		var y int32 = cardHeight + 2*cardStackOffset
+		var y int32 = menuHeight + cardHeight + 2*cardStackOffset
 		slot.x = x
 		slot.y = y
 		slot.stack.Restack(x, y)
@@ -48,7 +60,7 @@ func makeRender() func() {
 		foundations[i] = Foundation{
 			// 3 is the size of stock
 			x: int32(cardStackOffset + (i+3)*(cardStackOffset+cardWidth)),
-			y: cardStackOffset,
+			y: menuHeight + cardStackOffset,
 		}
 	}
 
@@ -56,7 +68,7 @@ func makeRender() func() {
 		deck:   deck,
 		faceUp: &Deck{},
 		x:      cardStackOffset,
-		y:      cardStackOffset,
+		y:      menuHeight + cardStackOffset,
 	}
 
 	var mouseX, mouseY int32
@@ -75,7 +87,7 @@ func makeRender() func() {
 		return max(y, halfCardHeight) - halfCardHeight
 	}
 
-	snapBack := func(other *Stack, x, y int32) {
+	snapBack := func(other *Stack) {
 		for _, slot := range stackSlots {
 			// Drop on empty StackSlot
 			if slot.stack == nil {
@@ -122,41 +134,41 @@ func makeRender() func() {
 		previousSlot.Restack()
 	}
 
-	handleClick := func(mouseX, mouseY int32) {
-		for _, slot := range stackSlots {
-			target := slot.TestHit(mouseX, mouseY)
-			// you cannot drag a face down card
-			if target != nil {
-				if !target.card.isFaceUp {
-					// put it back
-					slot.Concatenate(target)
-				} else {
-					// in case we need to snap back here
-					previousSlot = slot
-					draggingStack = target
-				}
-				return
-			}
-		}
-
-		switch stock.TestHit(mouseX, mouseY) {
-		case StockHitDeck:
-			stock.Draw(stockDrawCount)
-		case StockHitFaceUp:
-			previousSlot = stock
-			draggingStack = &Stack{card: stock.faceUp.Pop()}
-		}
-	}
-
-	return func() {
+	return func() bool {
 		mouseX = rl.GetMouseX()
 		mouseY = rl.GetMouseY()
 		if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
-			handleClick(mouseX, mouseY)
+			newGame := menu.TestHit(mouseX, mouseY)
+			if newGame {
+				return true
+			}
+			for _, slot := range stackSlots {
+				target := slot.TestHit(mouseX, mouseY)
+				// you cannot drag a face down card
+				if target != nil {
+					if !target.card.isFaceUp {
+						// put it back
+						slot.Concatenate(target)
+					} else {
+						// in case we need to snap back here
+						previousSlot = slot
+						draggingStack = target
+					}
+					break
+				}
+			}
+
+			switch stock.TestHit(mouseX, mouseY) {
+			case StockHitDeck:
+				stock.Draw(stockDrawCount)
+			case StockHitFaceUp:
+				previousSlot = stock
+				draggingStack = &Stack{card: stock.faceUp.Pop()}
+			}
 		}
 		if draggingStack != nil {
 			if rl.IsMouseButtonReleased(rl.MouseButtonLeft) {
-				snapBack(draggingStack, mouseX, mouseY)
+				snapBack(draggingStack)
 				previousSlot = nil
 				draggingStack = nil
 			} else if rl.IsMouseButtonDown(rl.MouseButtonLeft) {
@@ -175,9 +187,14 @@ func makeRender() func() {
 			foundation.Render()
 		}
 
-		// This must be rendered last
+		// This must be rendered second to last
 		if draggingStack != nil {
 			draggingStack.Render(draggingStack.x, draggingStack.y)
 		}
+
+		// This must be rendered last
+		menu.Render()
+
+		return false
 	}
 }
