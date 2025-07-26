@@ -1,12 +1,14 @@
 package main
 
 import (
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"slices"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type Stock struct {
-	deck   *Deck
+	deck *Deck
+	// TODO should we keep state of how many to show?
 	faceUp *Deck
 	x      int32
 	y      int32
@@ -59,10 +61,13 @@ func (s Stock) Render() {
 	}
 
 	if len(s.faceUp.cards) > 0 {
-		s.faceUp.cards[len(s.faceUp.cards)-1].Render(
-			s.x+cardStackOffset+cardWidth,
-			s.y,
-		)
+		var renderCount = s.cardsShowing()
+		for i := range renderCount {
+			s.faceUp.cards[len(s.faceUp.cards)-(renderCount-i)].Render(
+				s.x+cardStackOffset+cardWidth+int32(i*cardStackOffset),
+				s.y,
+			)
+		}
 	}
 }
 
@@ -74,12 +79,22 @@ const (
 	StockHitFaceUp
 )
 
+func (s Stock) cardsShowing() int {
+	var faceUpCount = len(s.faceUp.cards)
+	var renderCount = stockDrawCount
+	if faceUpCount < renderCount {
+		renderCount = faceUpCount
+	}
+	return renderCount
+}
+
 func (s Stock) TestHit(x, y int32) StockHitResult {
 	if IsInCard(x, y, s.x, s.y) {
 		return StockHitDeck
 	}
 
-	if IsInCard(x, y, s.x+cardStackOffset+cardWidth, s.y) {
+	var lastFaceUpX = s.x + cardStackOffset + cardWidth + int32((s.cardsShowing()-1)*cardStackOffset)
+	if IsInCard(x, y, lastFaceUpX, s.y) {
 		return StockHitFaceUp
 	}
 

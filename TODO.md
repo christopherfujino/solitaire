@@ -6,3 +6,4 @@
 
 ## Done
 - [x] Test dropping when cards intersect
+- [x] Implement draw 3

@@ -12,7 +12,9 @@ const cardWidth = 90
 const cardHeight = 120
 const cardStackOffset = 20
 const fps = 30
-const stockDrawCount = 1
+
+var stockDrawCount = 3
+
 const fontSize = 18
 
 var blackText = col.RGBA{
