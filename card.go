@@ -203,6 +203,5 @@ func IntersectsCard(firstLeft, firstTop, secondLeft, secondTop int32) bool {
 		}
 	}
 
-	fmt.Println("J")
 	return true
 }
