@@ -1,0 +1,5 @@
+- [ ] Test dropping when cards intersect
+- [ ] Better card graphics
+- [ ] Reset button
+- [ ] Auto finish option
+- [ ] Victory screen

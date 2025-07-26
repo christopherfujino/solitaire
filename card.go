@@ -143,7 +143,7 @@ var _font *rl.Font
 func getFont() *rl.Font {
 	if _font == nil {
 		//var font = rl.LoadFont("./ignore/font/ttf-symbola-8.00/Symbola.ttf")
-		var font = rl.LoadFont("./ignore/roboto/Roboto-Regular.ttf")
+		var font = rl.LoadFont("./ignore/roboto/Roboto-Bold.ttf")
 		_font = &font
 	}
 	return _font
