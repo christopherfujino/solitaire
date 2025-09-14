@@ -34,7 +34,7 @@ func (d *Deck) Shuffle() {
 }
 
 func (d *Deck) Pop() *Card {
-	var last = d.cards[len(d.cards)-1]
+	var last = d.cards[len(d.cards)-1] // TODO this can panic if len(d.cards) == 0
 	d.cards = d.cards[:len(d.cards)-1]
 	return last
 }
